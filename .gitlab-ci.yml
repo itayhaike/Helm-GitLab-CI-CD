@@ -1,0 +1,44 @@
+stages:
+  - imagebuild
+  - helmbuild
+  - deploy
+
+variables:
+  IMAGE_NAME: registry.gitlab.com/itayhaike/devops-home-assignment
+  APP_NAME: nodejs
+
+build_image:
+  stage: imagebuild
+  image: docker:stable
+  services:
+    - docker:stable-dind
+  variables:
+    DOCKER_TLS_CERTDIT: "/certs"
+    DOCKER_HOST: "tcp://docker:2375"
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    - docker build -f Dockerfile --tag ${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA} .
+    - docker push $CI_REGISTRY_IMAGE
+
+helm_build:
+  stage: helmbuild
+  image:
+    name: alpine/helm:latest
+    entrypoint: [""]
+  script:
+    - echo "Building the Helm chart"
+    - helm lint ./helm-chart
+    - helm package ./helm-chart
+
+deploy:
+  stage: deploy
+  image:
+    name: alpine/helm:latest
+    entrypoint: [""]
+  script:
+    - echo "Deploying the application using Helm"
+    - helm upgrade --install itay helm-chart*.tgz --set-string image.tag=${CI_COMMIT_SHORT_SHA}
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'itayhaike'
+      when: always
