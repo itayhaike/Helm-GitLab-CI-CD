@@ -1,0 +1,16 @@
+DevOps Home Assignment Itay Haike dockmentation
+
+1. Fork, Clone and build the image:
+    The fist step was to Fork and Clone the repo into my local machine.
+    after that I created an simple dockerfile that build for me the nodejs image from the files in the repo, then I simply run the container to see if the application is working.
+
+2. Helm creation 
+    I created "manully" helm chart with the image I have alrady created to see how its working.
+
+3. CI-CD pipline
+    image build stage:
+       This stage Created the image for the application Push and Tag it to the gitlab registry.
+    
+    Helm files creation:
+        This stage 
+d
